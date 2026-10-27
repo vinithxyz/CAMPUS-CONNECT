@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Environment variables & secrets (keep all real .env files strictly local)
+.env
+.env.*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+!.env.example
+!.env.sample
+!.env.template
+
+# Build & compiled outputs
+dist/
+build/
+*.tsbuildinfo
+
+# Uploaded user files & media
+server/uploads/*
+!server/uploads/.gitkeep
+
+# Logs & debug dumps
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# IDE, OS, & editor artifacts
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
