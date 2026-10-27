@@ -18,6 +18,7 @@ node_modules/
 dist/
 build/
 *.tsbuildinfo
+.vite/
 
 # Uploaded user files & media
 server/uploads/*
