@@ -16,7 +16,7 @@ export const requireAuth = asyncHandler(async (req, _res, next) => {
     throw new ApiError(401, 'Your session has expired. Please log in again');
   }
   const user = await User.findById(payload.sub);
-  if (!user) throw new ApiError(401, 'Account no longer exists');
+  if (!user || user.isActive === false) throw new ApiError(401, 'Account is unavailable');
   req.user = user;
   next();
 });

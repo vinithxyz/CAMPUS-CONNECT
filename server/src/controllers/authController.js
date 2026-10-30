@@ -36,6 +36,7 @@ export const login = asyncHandler(async (req, res) => {
   if (!user || !(await user.verifyPassword(password))) {
     throw new ApiError(401, 'Incorrect email/roll number or password');
   }
+  if (user.isActive === false) throw new ApiError(403, 'This account has been deactivated. Contact the campus admin.');
   setAuthCookie(res, signToken(user, remember), remember);
   res.json({ data: publicUser(user) });
 });
@@ -58,6 +59,7 @@ export const googleLogin = asyncHandler(async (req, res) => {
     user.googleId = p.sub;
     await user.save();
   }
+  if (user.isActive === false) throw new ApiError(403, 'This account has been deactivated. Contact the campus admin.');
   setAuthCookie(res, signToken(user));
   res.json({ data: publicUser(user) });
 });

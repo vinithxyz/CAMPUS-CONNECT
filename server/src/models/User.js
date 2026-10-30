@@ -9,7 +9,8 @@ const userSchema = new mongoose.Schema(
     passwordHash: { type: String, select: false }, // absent for Google-only users
     googleId: { type: String, unique: true, sparse: true },
     avatarUrl: { type: String },
-    role: { type: String, enum: ['student', 'admin'], default: 'student' },
+    role: { type: String, enum: ['student', 'staff', 'admin'], default: 'student' },
+    isActive: { type: Boolean, default: true },
   },
   { timestamps: true }
 );

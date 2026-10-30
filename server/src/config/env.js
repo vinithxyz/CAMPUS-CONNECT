@@ -11,6 +11,7 @@ const schema = z.object({
   UPLOAD_DIR: z.string().default('uploads'),
   ANTHROPIC_API_KEY: z.string().default(''),
   CHAT_MODEL: z.string().default('claude-3-5-sonnet-20241022'),
+  OVERDUE_HOURS: z.coerce.number().int().min(1).default(48),
 });
 
 export const env = schema.parse(process.env);

@@ -35,9 +35,13 @@ export default function LoginPage() {
   const onSubmit = async (values: LoginForm) => {
     try {
       setLoading(true);
-      await login(values);
+      const u = await login(values);
       toast.success('Logged in successfully');
-      navigate(from, { replace: true });
+      navigate(
+        (location.state as { from?: { pathname: string } })?.from?.pathname ??
+          (u.role === 'student' ? '/dashboard' : '/admin'),
+        { replace: true }
+      );
     } catch (err) {
       toast.error(getErrorMessage(err));
     } finally {
@@ -180,8 +184,10 @@ export default function LoginPage() {
       </button>
 
       {/* Demo helper */}
-      <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-[11px] text-slate-500 text-center">
-        Demo Login: <span className="font-semibold text-slate-700">user123@example.edu</span> / <span className="font-semibold text-slate-700">Password@123</span>
+      <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-[11px] text-slate-500 text-center space-y-1">
+        <div>Student: <span className="font-semibold text-slate-700">user123@example.edu</span> / <span className="font-semibold text-slate-700">Password@123</span></div>
+        <div>Admin: <span className="font-semibold text-slate-700">admin@example.edu</span> / <span className="font-semibold text-slate-700">Admin@12345</span></div>
+        <div>Staff: <span className="font-semibold text-slate-700">staff@example.edu</span> / <span className="font-semibold text-slate-700">Staff@12345</span></div>
       </div>
 
       {/* Sign Up Link */}

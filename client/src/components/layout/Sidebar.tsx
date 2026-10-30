@@ -1,23 +1,16 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import {
-  MapPin,
-  Home,
-  FilePlus,
-  Map as MapIcon,
-  FileText,
-  User,
-  ShieldAlert,
-  LogOut,
-  X,
-} from 'lucide-react';
+import { MapPin, LogOut, X } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { studentNav, type NavItem } from '../../routes/navConfig';
 
 interface Props {
   mobileOpen: boolean;
   onClose: () => void;
+  items?: NavItem[];
+  badge?: string;
 }
 
-export default function Sidebar({ mobileOpen, onClose }: Props) {
+export default function Sidebar({ mobileOpen, onClose, items = studentNav, badge }: Props) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -28,17 +21,10 @@ export default function Sidebar({ mobileOpen, onClose }: Props) {
     }
   };
 
-  const navItems = [
-    { to: '/dashboard', label: 'Home', icon: Home },
-    { to: '/report', label: 'Report Issue', icon: FilePlus },
-    { to: '/map', label: 'Campus Map', icon: MapIcon },
-    { to: '/complaints', label: 'My Complaints', icon: FileText },
-    { to: '/profile', label: 'Profile', icon: User },
-  ];
-
-  if (user?.role === 'admin') {
-    navItems.push({ to: '/admin/reports', label: 'Admin Portal', icon: ShieldAlert });
-  }
+  const visibleItems = items.filter((item) => {
+    if (!item.roles) return true;
+    return user ? item.roles.includes(user.role) : false;
+  });
 
   const content = (
     <div className="flex flex-col h-full bg-[#0b2545] text-white">
@@ -48,7 +34,14 @@ export default function Sidebar({ mobileOpen, onClose }: Props) {
           <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white shadow">
             <MapPin className="w-4 h-4 fill-white" />
           </div>
-          <span className="text-lg font-bold tracking-tight">CampusConnect</span>
+          <div className="flex items-center gap-2">
+            <span className="text-lg font-bold tracking-tight">CampusConnect</span>
+            {badge && (
+              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/30">
+                {badge}
+              </span>
+            )}
+          </div>
         </div>
         <button
           onClick={onClose}
@@ -61,10 +54,11 @@ export default function Sidebar({ mobileOpen, onClose }: Props) {
 
       {/* Nav items */}
       <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
-        {navItems.map((item) => (
+        {visibleItems.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}
+            end={item.end}
             onClick={onClose}
             className={({ isActive }) =>
               `flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all ${

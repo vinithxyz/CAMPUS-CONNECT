@@ -5,6 +5,8 @@ import Building from '../models/Building.js';
 import Report from '../models/Report.js';
 import Counter from '../models/Counter.js';
 import Notification from '../models/Notification.js';
+import ReportNote from '../models/ReportNote.js';
+import AuditLog from '../models/AuditLog.js';
 
 const C = { lat: 12.6599, lng: 77.4512 }; // Dayananda Sagar University, Harohalli 562112
 
@@ -35,9 +37,9 @@ const REPORTS = [
 ];
 
 export async function seedData() {
-  await Promise.all([User, Building, Report, Counter, Notification].map((m) => m.deleteMany({})));
+  await Promise.all([User, Building, Report, Counter, Notification, ReportNote, AuditLog].map((m) => m.deleteMany({})));
 
-  const [student, admin] = await User.create([
+  const [student, admin, staff] = await User.create([
     {
       name: 'User 123',
       rollNumber: 'CS2025001',
@@ -50,6 +52,12 @@ export async function seedData() {
       email: 'admin@example.edu',
       role: 'admin',
       passwordHash: await User.hashPassword('Admin@12345'),
+    },
+    {
+      name: 'Maintenance Staff',
+      email: 'staff@example.edu',
+      role: 'staff',
+      passwordHash: await User.hashPassword('Staff@12345'),
     },
   ]);
 
@@ -104,6 +112,7 @@ export async function seedData() {
       room,
       building: b._id,
       reporter: student._id,
+      assignedTo: status === 'in_progress' ? staff._id : undefined,
       images,
       history,
       isSample: true,
@@ -120,14 +129,33 @@ export async function seedData() {
   await Counter.create({ _id: 'report', seq: REPORTS.length });
 
   // Add initial welcome notification
-  await Notification.create({
-    user: student._id,
-    report: (await Report.findOne({ reportId: 'CP0012' }))._id,
-    message: 'CP0012 "Leaking tap" is now in progress',
-    createdAt: new Date(),
-  });
+  const cp12 = await Report.findOne({ reportId: 'CP0012' });
+  if (cp12) {
+    await Notification.create({
+      user: student._id,
+      report: cp12._id,
+      message: 'CP0012 "Leaking tap" is now in progress',
+      createdAt: new Date(),
+    });
 
-  console.log('Database seeded: 2 users, 7 buildings, 12 sample reports, 1 counter, 1 notification');
+    // Add internal notes on CP0012
+    await ReportNote.create([
+      {
+        report: cp12._id,
+        author: staff._id,
+        text: 'Inspected washroom tap. Replacement valve ordered from supplier.',
+        createdAt: new Date(Date.now() - 5 * day),
+      },
+      {
+        report: cp12._id,
+        author: admin._id,
+        text: 'Supplier confirmed delivery for tomorrow morning.',
+        createdAt: new Date(Date.now() - 2 * day),
+      },
+    ]);
+  }
+
+  console.log('Database seeded: 3 users, 7 buildings, 12 sample reports, 2 notes, 1 counter, 1 notification');
 }
 
 export async function seedIfEmpty() {

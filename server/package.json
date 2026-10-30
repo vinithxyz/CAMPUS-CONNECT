@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "node src/server.js",
     "start": "node src/server.js",
-    "seed": "node src/seed/seed.js"
+    "seed": "node src/seed/seed.js",
+    "migrate:admin": "node src/scripts/migrateAdmin.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.3.0",

@@ -11,9 +11,10 @@ interface Props {
   heatPoints: HeatPoint[];
   reports: MapReport[];
   buildings: Building[];
+  renderPopupFooter?: (r: MapReport) => React.ReactNode;
 }
 
-export default function CampusMap({ mode, heatPoints, reports, buildings }: Props) {
+export default function CampusMap({ mode, heatPoints, reports, buildings, renderPopupFooter }: Props) {
   return (
     <div className="relative h-[50vh] sm:h-[65vh] min-h-[350px] sm:min-h-[420px] w-full rounded-2xl overflow-hidden border border-slate-200 shadow-sm">
       <MapContainer
@@ -62,6 +63,7 @@ export default function CampusMap({ mode, heatPoints, reports, buildings }: Prop
                   {r.isSample && (
                     <p className="text-[10px] text-slate-400 italic pt-0.5">Sample demonstration data</p>
                   )}
+                  {renderPopupFooter && renderPopupFooter(r)}
                 </div>
               </Popup>
             </Marker>

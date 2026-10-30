@@ -6,7 +6,7 @@ import { uploadImages } from '../middleware/upload.js';
 import * as auth from '../controllers/authController.js';
 import * as reports from '../controllers/reportController.js';
 import * as map from '../controllers/mapController.js';
-import * as admin from '../controllers/adminController.js';
+import adminRoutes from './admin.js';
 import { listBuildings } from '../controllers/buildingController.js';
 import { listNotifications, markAllRead } from '../controllers/notificationController.js';
 import { updateMe } from '../controllers/userController.js';
@@ -54,20 +54,7 @@ r.get('/notifications', requireAuth, listNotifications);
 r.patch('/notifications/read-all', requireAuth, markAllRead);
 r.use('/chat', chatRoutes);
 
-// Admin
-r.get(
-  '/admin/reports',
-  requireAuth,
-  requireRole('admin'),
-  validate(listReportsQuery, 'query'),
-  admin.listAllReports
-);
-r.patch(
-  '/admin/reports/:reportId/status',
-  requireAuth,
-  requireRole('admin'),
-  validate(updateStatusSchema),
-  admin.updateStatus
-);
+// Admin routes
+r.use('/admin', adminRoutes);
 
 export default r;

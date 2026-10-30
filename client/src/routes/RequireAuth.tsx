@@ -2,7 +2,7 @@ import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import type { Role } from '../types';
 
-export default function RequireAuth({ role }: { role?: Role }) {
+export default function RequireAuth({ roles }: { roles?: Role[] }) {
   const { user, loading } = useAuth();
   const loc = useLocation();
 
@@ -21,8 +21,8 @@ export default function RequireAuth({ role }: { role?: Role }) {
     return <Navigate to="/login" state={{ from: loc }} replace />;
   }
 
-  if (role && user.role !== role) {
-    return <Navigate to="/dashboard" replace />;
+  if (roles && !roles.includes(user.role)) {
+    return <Navigate to={user.role === 'student' ? '/dashboard' : '/admin'} replace />;
   }
 
   return <Outlet />;

@@ -4,14 +4,24 @@ import Sidebar from '../components/layout/Sidebar';
 import Header from '../components/layout/Header';
 import MobileBottomNav from '../components/layout/MobileBottomNav';
 import ChatWidget from '../components/chat/ChatWidget';
+import { useAuth } from '../context/AuthContext';
+import { studentNav, type NavItem } from '../routes/navConfig';
 
-export default function DashboardLayout() {
+interface DashboardLayoutProps {
+  nav?: NavItem[];
+  badge?: string;
+}
+
+export default function DashboardLayout({ nav = studentNav, badge }: DashboardLayoutProps) {
+  const { user } = useAuth();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-[#f4f7fb] flex flex-col lg:flex-row">
       {/* Left Sidebar */}
       <Sidebar
+        items={nav}
+        badge={badge}
         mobileOpen={mobileSidebarOpen}
         onClose={() => setMobileSidebarOpen(false)}
       />
@@ -27,8 +37,8 @@ export default function DashboardLayout() {
       {/* Mobile Bottom Navigation Bar for phones & tablets */}
       <MobileBottomNav />
 
-      {/* CampusConnect AI Chatbot Assistant */}
-      <ChatWidget />
+      {/* CampusConnect AI Chatbot Assistant - only rendered for students */}
+      {user?.role === 'student' && <ChatWidget />}
     </div>
   );
 }
