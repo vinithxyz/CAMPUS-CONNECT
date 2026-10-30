@@ -5,7 +5,11 @@ import fs from 'node:fs';
 import { env } from '../config/env.js';
 import { ApiError } from '../utils/ApiError.js';
 
-fs.mkdirSync(env.UPLOAD_DIR, { recursive: true });
+try {
+  fs.mkdirSync(env.UPLOAD_DIR, { recursive: true });
+} catch (e) {
+  console.warn('Could not create upload directory:', e.message);
+}
 
 const ALLOWED = { 'image/jpeg': '.jpg', 'image/png': '.png' };
 
