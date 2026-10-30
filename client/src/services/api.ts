@@ -7,14 +7,21 @@ export const api = axios.create({
 
 export const getErrorMessage = (err: unknown): string => {
   if (axios.isAxiosError(err)) {
-    return (
-      err.response?.data?.error?.message ??
-      (err.code === 'ERR_NETWORK'
-        ? 'Cannot reach the server. Check your connection.'
-        : 'Request failed')
-    );
+    if (err.response?.data?.error?.message) {
+      return err.response.data.error.message;
+    }
+    if (typeof err.response?.data?.message === 'string') {
+      return err.response.data.message;
+    }
+    if (err.code === 'ERR_NETWORK') {
+      return 'Cannot reach the server. Make sure the backend server is running.';
+    }
+    if (err.response?.status === 500 || err.response?.status === 502 || err.response?.status === 504) {
+      return 'Server error. Please ensure the backend server and database are running.';
+    }
+    return `Request failed with status ${err.response?.status ?? 'unknown'}`;
   }
-  return 'Something went wrong';
+  return err instanceof Error ? err.message : 'Something went wrong';
 };
 
 api.interceptors.response.use(
