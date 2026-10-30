@@ -20,6 +20,8 @@ import AdminMapPage from './pages/admin/AdminMapPage';
 import AdminUsersPage from './pages/admin/AdminUsersPage';
 import AdminBuildingsPage from './pages/admin/AdminBuildingsPage';
 import AdminAuditPage from './pages/admin/AdminAuditPage';
+import AdminKnowledgePage from './pages/admin/AdminKnowledgePage';
+
 
 export default function App() {
   return (
@@ -55,8 +57,10 @@ export default function App() {
           <Route element={<RequireAuth roles={['admin']} />}>
             <Route path="/admin/users" element={<AdminUsersPage />} />
             <Route path="/admin/buildings" element={<AdminBuildingsPage />} />
+            <Route path="/admin/knowledge" element={<AdminKnowledgePage />} />
             <Route path="/admin/audit" element={<AdminAuditPage />} />
           </Route>
+
         </Route>
       </Route>
 

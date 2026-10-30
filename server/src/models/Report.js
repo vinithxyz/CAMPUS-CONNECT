@@ -14,7 +14,7 @@ export const CATEGORIES = [
 ];
 
 export const PRIORITIES = ['low', 'medium', 'high', 'critical'];
-export const STATUSES = ['pending', 'in_progress', 'resolved'];
+export const STATUSES = ['pending', 'in_progress', 'resolved', 'cancelled'];
 
 const historySchema = new mongoose.Schema(
   {
@@ -31,6 +31,7 @@ const reportSchema = new mongoose.Schema(
     reportId: { type: String, required: true, unique: true, index: true },
     title: { type: String, required: true, trim: true, minlength: 5, maxlength: 120 },
     description: { type: String, required: true, trim: true, minlength: 10, maxlength: 2000 },
+    originalDescription: { type: String, maxlength: 2000 }, // student's own words if not English
     category: { type: String, enum: CATEGORIES, required: true, index: true },
     priority: { type: String, enum: PRIORITIES, default: 'medium' },
     priorityRank: { type: Number, index: true }, // low 1, medium 2, high 3, critical 4
@@ -44,6 +45,11 @@ const reportSchema = new mongoose.Schema(
     images: [{ url: String, filename: String, _id: false }],
     reporter: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
     assignedTo: { type: mongoose.Schema.Types.ObjectId, ref: 'User', index: true },
+    supportCount: { type: Number, default: 0 },
+    reopenCount: { type: Number, default: 0 },
+    followUpAt: Date,
+    followUpSentAt: Date,
+    fixConfirmed: Boolean,
     history: [historySchema],
     resolvedAt: Date,
     isSample: { type: Boolean, default: false },

@@ -1,5 +1,7 @@
 import Report from '../../models/Report.js';
 import ReportNote from '../../models/ReportNote.js';
+import ReportComment from '../../models/ReportComment.js';
+import ReportSupport from '../../models/ReportSupport.js';
 import Notification from '../../models/Notification.js';
 import User from '../../models/User.js';
 import { ApiError } from '../../utils/ApiError.js';
@@ -8,6 +10,7 @@ import { audit } from '../../utils/audit.js';
 import { scopeFilter, overdueCutoff } from '../../middleware/adminScope.js';
 import { buildAdminReportFilter, sortSpec } from '../../services/adminReportFilter.js';
 import { applyStatusChange, statusLabel } from '../../services/statusService.js';
+import { changeStatusAs, assignReportAs } from '../../services/adminReportActions.js';
 
 const findScoped = async (req) => {
   const r = await Report.findOne({ reportId: req.params.reportId.toUpperCase(), ...scopeFilter(req.user) });
@@ -45,55 +48,30 @@ export const getReportDetail = asyncHandler(async (req, res) => {
     .populate('history.changedBy', 'name role')
     .lean();
   if (!r) throw new ApiError(404, 'Report not found');
-  const notes = await ReportNote.find({ report: r._id }).sort('-createdAt').populate('author', 'name role').lean();
-  res.json({ data: { ...r, isOverdue: r.status === 'pending' && r.createdAt < overdueCutoff(), notes } });
+  const [notes, comments, supporters] = await Promise.all([
+    ReportNote.find({ report: r._id }).sort('-createdAt').populate('author', 'name role').lean(),
+    ReportComment.find({ report: r._id }).sort('-createdAt').populate('author', 'name role').lean(),
+    ReportSupport.find({ report: r._id }).sort('-createdAt').populate('user', 'name rollNumber').lean(),
+  ]);
+  res.json({
+    data: {
+      ...r,
+      isOverdue: r.status === 'pending' && r.createdAt < overdueCutoff(),
+      notes,
+      comments,
+      supporters,
+    },
+  });
 });
 
 export const changeStatus = asyncHandler(async (req, res) => {
-  const report = await findScoped(req);
-  const { status, note } = req.body;
-  if (!applyStatusChange(report, { status, note, actor: req.user })) {
-    throw new ApiError(400, `Report is already ${statusLabel(status)}`);
-  }
-  await report.save();
-  await Notification.create({
-    user: report.reporter,
-    report: report._id,
-    message: `${report.reportId} "${report.title}" is now ${statusLabel(status)}`,
-  });
-  await audit(req, 'report.status', 'report', report.reportId, { status, note });
+  const report = await changeStatusAs(req, req.params.reportId, req.body, 'ui');
   res.json({ data: report });
 });
 
 export const assignReport = asyncHandler(async (req, res) => {
-  const report = await Report.findOne({ reportId: req.params.reportId.toUpperCase() }); // admin only, no scope
-  if (!report) throw new ApiError(404, 'Report not found');
-  const { assigneeId } = req.body;
-  let assignee = null;
-  if (assigneeId) {
-    assignee = await User.findOne({ _id: assigneeId, role: { $in: ['staff', 'admin'] }, isActive: true });
-    if (!assignee) throw new ApiError(400, 'Assignee must be an active staff member or admin');
-  }
-  report.assignedTo = assignee?._id;
-  if (assignee && report.status === 'pending') {
-    applyStatusChange(report, { status: 'in_progress', note: `Assigned to ${assignee.name}`, actor: req.user });
-  }
-  await report.save();
-  if (assignee) {
-    await Notification.create({
-      user: report.reporter,
-      report: report._id,
-      message: `${report.reportId} "${report.title}" has been assigned to the maintenance team`,
-    });
-  }
-  await audit(req, 'report.assign', 'report', report.reportId, { assigneeId: assigneeId ?? null });
-  res.json({
-    data: {
-      reportId: report.reportId,
-      status: report.status,
-      assignedTo: assignee ? { _id: assignee._id, name: assignee.name } : null,
-    },
-  });
+  const result = await assignReportAs(req, req.params.reportId, req.body.assigneeId, 'ui');
+  res.json({ data: result });
 });
 
 export const addNote = asyncHandler(async (req, res) => {

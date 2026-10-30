@@ -24,6 +24,7 @@ export const STATUS_LABEL: Record<Status, string> = {
   pending: 'Pending',
   in_progress: 'In Progress',
   resolved: 'Resolved',
+  cancelled: 'Cancelled',
 };
 
 // Map filter groups (matching PDF checkboxes)

@@ -87,3 +87,24 @@ export const auditQuery = z.object({
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(30),
 });
+
+export const knowledgeCategories = [
+  'hostel',
+  'canteen',
+  'wifi',
+  'contacts',
+  'emergency',
+  'reporting',
+  'general',
+];
+
+export const knowledgeBody = z.object({
+  title: z.string().trim().min(3).max(120),
+  body: z.string().trim().min(10).max(3000),
+  category: z.enum(knowledgeCategories).default('general'),
+  tags: z.array(z.string().trim().max(30)).max(10).default([]),
+  published: z.boolean().default(false),
+});
+
+export const knowledgePatch = knowledgeBody.partial().refine((v) => Object.keys(v).length > 0, 'Nothing to update');
+

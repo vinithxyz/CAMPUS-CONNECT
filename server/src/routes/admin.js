@@ -8,6 +8,7 @@ import { adminMapReports, adminHeat } from '../controllers/admin/mapController.j
 import { listUsers, updateUser } from '../controllers/admin/usersController.js';
 import * as bld from '../controllers/admin/buildingsController.js';
 import { listAudit } from '../controllers/admin/auditController.js';
+import * as knw from '../controllers/admin/knowledgeController.js';
 
 const r = Router();
 const adminOnly = requireRole('admin');
@@ -39,4 +40,12 @@ r.patch('/buildings/:id', adminOnly, validate(s.buildingPatch), bld.updateBuildi
 r.delete('/buildings/:id', adminOnly, bld.deleteBuilding);
 r.get('/audit', adminOnly, validate(s.auditQuery, 'query'), listAudit);
 
+// Knowledge Base
+r.get('/knowledge', adminOnly, knw.listKnowledge);
+r.get('/knowledge/:id', adminOnly, knw.getKnowledgeDetail);
+r.post('/knowledge', adminOnly, validate(s.knowledgeBody), knw.createKnowledge);
+r.patch('/knowledge/:id', adminOnly, validate(s.knowledgePatch), knw.updateKnowledge);
+r.delete('/knowledge/:id', adminOnly, knw.deleteKnowledge);
+
 export default r;
+

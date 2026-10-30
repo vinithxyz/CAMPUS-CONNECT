@@ -1,5 +1,5 @@
 export type Role = 'student' | 'staff' | 'admin';
-export type Status = 'pending' | 'in_progress' | 'resolved';
+export type Status = 'pending' | 'in_progress' | 'resolved' | 'cancelled';
 export type Priority = 'low' | 'medium' | 'high' | 'critical';
 export type Category =
   | 'electrical'

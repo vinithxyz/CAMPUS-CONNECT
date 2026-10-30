@@ -45,6 +45,7 @@ r.post('/reports', requireAuth, uploadImages, validate(createReportSchema), repo
 r.get('/reports', requireAuth, validate(listReportsQuery, 'query'), reports.listMyReports);
 r.get('/reports/stats', requireAuth, reports.myStats);
 r.get('/reports/:reportId', requireAuth, reports.getReport);
+r.post('/reports/:reportId/feedback', requireAuth, reports.reportFeedback);
 
 // Map, buildings, notifications, chat
 r.get('/map/reports', requireAuth, validate(mapQuery, 'query'), map.mapReports);

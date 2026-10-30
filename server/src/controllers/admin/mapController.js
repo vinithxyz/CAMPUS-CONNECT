@@ -6,7 +6,11 @@ const WEIGHT = { low: 0.25, medium: 0.5, high: 0.75, critical: 1 };
 const filterFrom = ({ categories = [], statuses = [], from, to }) => {
   const f = {};
   if (categories.length) f.category = { $in: categories };
-  if (statuses.length) f.status = { $in: statuses };
+  if (statuses.length) {
+    f.status = { $in: statuses };
+  } else {
+    f.status = { $ne: 'cancelled' };
+  }
   if (from || to) f.createdAt = { ...(from && { $gte: from }), ...(to && { $lte: to }) };
   return f;
 };

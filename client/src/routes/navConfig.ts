@@ -9,6 +9,7 @@ import {
   FileText,
   User,
   PlusSquare,
+  BookOpen,
 } from 'lucide-react';
 import type { ComponentType } from 'react';
 import type { Role } from '../types';
@@ -35,6 +36,8 @@ export const adminNav: NavItem[] = [
   { to: '/admin/map', label: 'Map', icon: Map },
   { to: '/admin/users', label: 'Users', icon: Users, roles: ['admin'] },
   { to: '/admin/buildings', label: 'Buildings', icon: Building2, roles: ['admin'] },
+  { to: '/admin/knowledge', label: 'Knowledge Base', icon: BookOpen, roles: ['admin'] },
   { to: '/admin/audit', label: 'Audit Log', icon: ScrollText, roles: ['admin'] },
   { to: '/profile', label: 'Profile', icon: User },
 ];
+

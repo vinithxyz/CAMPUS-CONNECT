@@ -12,6 +12,14 @@ const schema = z.object({
   ANTHROPIC_API_KEY: z.string().default(''),
   CHAT_MODEL: z.string().default('claude-3-5-sonnet-20241022'),
   OVERDUE_HOURS: z.coerce.number().int().min(1).default(48),
+  CHAT_DAILY_LIMIT_USER: z.coerce.number().int().default(60),
+  CHAT_DAILY_LIMIT_ADMIN: z.coerce.number().int().default(200),
+  FOLLOWUP_HOURS: z.coerce.number().int().min(1).default(24),
+  CLUSTER_WINDOW_HOURS: z.coerce.number().int().min(1).default(72),
+  CLUSTER_MIN: z.coerce.number().int().min(2).default(3),
+  REOPEN_WINDOW_DAYS: z.coerce.number().int().min(1).default(14),
+  MAX_REOPENS: z.coerce.number().int().min(0).default(2),
+  ENABLE_JOBS: z.enum(['true', 'false']).default('true').transform((v) => v === 'true'),
 });
 
 export const env = schema.parse(process.env);

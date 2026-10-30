@@ -9,7 +9,12 @@ import type {
   AuditEntry,
   BulkResult,
   ReportNote,
+  KnowledgeArticleItem,
 } from '../types/admin';
+
+export type { KnowledgeArticleItem };
+
+
 
 const clean = (o: object) =>
   Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined && v !== ''));
@@ -84,4 +89,16 @@ export const adminService = {
 
   audit: (p: { actor?: string; action?: string; from?: string; to?: string; page?: number }) =>
     api.get<Paginated<AuditEntry>>('/admin/audit', { params: clean(p) }).then((r) => r.data),
+
+  knowledgeList: (p?: { category?: string; published?: boolean; search?: string }) =>
+    api.get<{ data: KnowledgeArticleItem[] }>('/admin/knowledge', { params: clean(p || {}) }).then((r) => r.data.data),
+
+  createKnowledge: (b: { title: string; body: string; category: string; tags: string[]; published: boolean }) =>
+    api.post<{ data: KnowledgeArticleItem }>('/admin/knowledge', b).then((r) => r.data.data),
+
+  updateKnowledge: (id: string, b: Partial<{ title: string; body: string; category: string; tags: string[]; published: boolean }>) =>
+    api.patch<{ data: KnowledgeArticleItem }>(`/admin/knowledge/${id}`, b).then((r) => r.data.data),
+
+  deleteKnowledge: (id: string) => api.delete(`/admin/knowledge/${id}`),
 };
+

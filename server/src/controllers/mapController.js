@@ -6,7 +6,11 @@ const WEIGHT = { low: 0.25, medium: 0.5, high: 0.75, critical: 1 };
 const buildFilter = ({ categories, includeResolved }) => {
   const f = {};
   if (categories && categories.length) f.category = { $in: categories };
-  if (!includeResolved) f.status = { $ne: 'resolved' };
+  if (!includeResolved) {
+    f.status = { $nin: ['resolved', 'cancelled'] };
+  } else {
+    f.status = { $ne: 'cancelled' };
+  }
   return f;
 };
 

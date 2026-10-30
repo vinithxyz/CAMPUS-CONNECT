@@ -25,6 +25,12 @@ export default function StatusBadge({ status, size = 'md' }: Props) {
       border: 'border-emerald-200',
       label: 'Resolved',
     },
+    cancelled: {
+      bg: 'bg-slate-100',
+      text: 'text-slate-500',
+      border: 'border-slate-200',
+      label: 'Cancelled',
+    },
   };
 
   const current = styles[status] ?? styles.pending;

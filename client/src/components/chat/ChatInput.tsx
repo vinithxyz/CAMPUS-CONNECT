@@ -5,11 +5,27 @@ interface ChatInputProps {
   onSend: (message: string) => void;
   disabled?: boolean;
   maxLength?: number;
+  initialValue?: string;
+  onClearInitialValue?: () => void;
 }
 
-export default function ChatInput({ onSend, disabled = false, maxLength = 1000 }: ChatInputProps) {
+export default function ChatInput({
+  onSend,
+  disabled = false,
+  maxLength = 1000,
+  initialValue,
+  onClearInitialValue,
+}: ChatInputProps) {
   const [text, setText] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (initialValue) {
+      setText(initialValue);
+      onClearInitialValue?.();
+      inputRef.current?.focus();
+    }
+  }, [initialValue, onClearInitialValue]);
 
   useEffect(() => {
     if (!disabled && inputRef.current) {
@@ -37,14 +53,14 @@ export default function ChatInput({ onSend, disabled = false, maxLength = 1000 }
         onChange={(e) => setText(e.target.value)}
         disabled={disabled}
         maxLength={maxLength}
-        placeholder={disabled ? 'Waiting for response...' : 'Ask about policies, issues, or status...'}
+        placeholder={disabled ? 'Waiting for response...' : 'Type your message...'}
         className="flex-1 px-3.5 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 disabled:opacity-60 text-slate-800 placeholder-slate-400"
       />
       <button
         type="submit"
         disabled={!text.trim() || disabled}
         aria-label="Send message"
-        className="w-9 h-9 flex items-center justify-center bg-blue-600 hover:bg-blue-700 disabled:opacity-40 disabled:hover:bg-blue-600 text-white rounded-xl shadow-sm transition active:scale-[0.96] shrink-0"
+        className="w-9 h-9 flex items-center justify-center bg-blue-600 hover:bg-blue-700 disabled:opacity-40 disabled:hover:bg-blue-600 text-white rounded-xl shadow-xs transition active:scale-95 shrink-0"
       >
         {disabled ? (
           <Loader2 className="w-4 h-4 animate-spin" />

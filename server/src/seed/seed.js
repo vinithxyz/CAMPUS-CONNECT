@@ -7,6 +7,8 @@ import Counter from '../models/Counter.js';
 import Notification from '../models/Notification.js';
 import ReportNote from '../models/ReportNote.js';
 import AuditLog from '../models/AuditLog.js';
+import KnowledgeArticle from '../models/KnowledgeArticle.js';
+
 
 const C = { lat: 12.6599, lng: 77.4512 }; // Dayananda Sagar University, Harohalli 562112
 
@@ -37,7 +39,7 @@ const REPORTS = [
 ];
 
 export async function seedData() {
-  await Promise.all([User, Building, Report, Counter, Notification, ReportNote, AuditLog].map((m) => m.deleteMany({})));
+  await Promise.all([User, Building, Report, Counter, Notification, ReportNote, AuditLog, KnowledgeArticle].map((m) => m.deleteMany({})));
 
   const [student, admin, staff] = await User.create([
     {
@@ -155,7 +157,76 @@ export async function seedData() {
     ]);
   }
 
-  console.log('Database seeded: 3 users, 7 buildings, 12 sample reports, 2 notes, 1 counter, 1 notification');
+  // Seed starter knowledge base articles
+  await KnowledgeArticle.insertMany([
+    {
+      title: 'How to report a problem',
+      category: 'reporting',
+      published: true,
+      tags: ['report', 'complaint', 'submit', 'steps'],
+      body: 'To report an issue on CampusConnect:\n1. Click "Report Issue" or ask the assistant.\n2. Choose a category, building and room.\n3. Add an accurate title and description.\n4. Optionally upload up to 5 photos.\n5. Confirm and submit the report to track its progress.',
+      updatedBy: admin._id,
+    },
+    {
+      title: 'What the statuses and priorities mean',
+      category: 'reporting',
+      published: true,
+      tags: ['status', 'priority', 'meaning', 'lifecycle'],
+      body: 'Statuses:\n- Pending: Newly registered complaint awaiting team review.\n- In Progress: Assigned to campus technicians and actively under repair.\n- Resolved: Work completed and verified.\n- Cancelled: Cancelled by the reporter prior to repair.\n\nPriorities:\n- Low: Minor issues without operational hindrance.\n- Medium: Normal maintenance.\n- High: Significantly affects comfort or academics.\n- Critical: Safety or infrastructure hazard.',
+      updatedBy: admin._id,
+    },
+    {
+      title: 'Expected fix times: <FILL IN>',
+      category: 'general',
+      published: false,
+      tags: ['turnaround', 'sla', 'fix times'],
+      body: 'Standard resolution turnaround by priority: <FILL IN>',
+      updatedBy: admin._id,
+    },
+    {
+      title: 'Hostel rules and timings: <FILL IN>',
+      category: 'hostel',
+      published: false,
+      tags: ['hostel', 'curfew', 'visitors'],
+      body: 'Hostel entry gates close at: <FILL IN>\nVisitor regulations: <FILL IN>',
+      updatedBy: admin._id,
+    },
+    {
+      title: 'Canteen timings: <FILL IN>',
+      category: 'canteen',
+      published: false,
+      tags: ['canteen', 'food', 'meals'],
+      body: 'Breakfast: <FILL IN>\nLunch: <FILL IN>\nDinner: <FILL IN>',
+      updatedBy: admin._id,
+    },
+    {
+      title: 'Wi-Fi help (network name, portal, who to contact): <FILL IN>',
+      category: 'wifi',
+      published: false,
+      tags: ['wifi', 'internet', 'portal'],
+      body: 'Network SSID: <FILL IN>\nLogin instructions: <FILL IN>\nIT Support desk: <FILL IN>',
+      updatedBy: admin._id,
+    },
+    {
+      title: 'Campus contacts (maintenance office, hostel warden, IT help desk): <FILL IN>',
+      category: 'contacts',
+      published: false,
+      tags: ['contacts', 'phone', 'warden', 'it'],
+      body: 'Maintenance: <FILL IN>\nHostel Warden: <FILL IN>\nIT Helpline: <FILL IN>',
+      updatedBy: admin._id,
+    },
+    {
+      title: 'Emergency contacts and what counts as an emergency: <FILL IN>',
+      category: 'emergency',
+      published: false,
+      tags: ['emergency', 'security', 'fire', 'medical'],
+      body: 'Campus 24/7 Security Hotline: <FILL IN>\nWhat counts as an emergency: Fire, exposed electric sparks, severe water flooding, structural damage, or physical injury.',
+      updatedBy: admin._id,
+    },
+  ]);
+
+  console.log('Database seeded: 3 users, 7 buildings, 12 sample reports, 2 notes, 8 knowledge articles, 1 counter, 1 notification');
+
 }
 
 export async function seedIfEmpty() {

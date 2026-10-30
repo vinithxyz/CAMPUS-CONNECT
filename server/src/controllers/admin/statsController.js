@@ -18,7 +18,7 @@ export const adminStats = asyncHandler(async (req, res) => {
   const since = new Date(Date.now() - days * DAY);
   const scope = scopeFilter(req.user); // ObjectId already, safe inside aggregate $match
   const cutoff = overdueCutoff();
-  const inRange = { ...scope, createdAt: { $gte: since } };
+  const inRange = { ...scope, status: { $ne: 'cancelled' }, createdAt: { $gte: since } };
   const day = { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } };
 
   const [totals, byCategory, byBuilding, byPriority, createdByDay, resolvedByDay, attention] = await Promise.all([
@@ -28,10 +28,11 @@ export const adminStats = asyncHandler(async (req, res) => {
       {
         $group: {
           _id: null,
-          total: { $sum: 1 },
+          total: { $sum: { $cond: [{ $ne: ['$status', 'cancelled'] }, 1, 0] } },
           pending: { $sum: { $cond: [{ $eq: ['$status', 'pending'] }, 1, 0] } },
           inProgress: { $sum: { $cond: [{ $eq: ['$status', 'in_progress'] }, 1, 0] } },
           resolved: { $sum: { $cond: [{ $eq: ['$status', 'resolved'] }, 1, 0] } },
+          cancelled: { $sum: { $cond: [{ $eq: ['$status', 'cancelled'] }, 1, 0] } },
           overdue: {
             $sum: { $cond: [{ $and: [{ $eq: ['$status', 'pending'] }, { $lt: ['$createdAt', cutoff] }] }, 1, 0] },
           },
@@ -65,7 +66,7 @@ export const adminStats = asyncHandler(async (req, res) => {
     ]),
     Report.find({
       ...scope,
-      status: { $ne: 'resolved' },
+      status: { $nin: ['resolved', 'cancelled'] },
       $or: [{ priority: 'critical' }, { status: 'pending', createdAt: { $lt: cutoff } }],
     })
       .sort({ priorityRank: -1, createdAt: 1 })

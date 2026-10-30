@@ -77,3 +77,16 @@ export interface AdminReportFilters {
   page?: number;
   limit?: number;
 }
+
+export interface KnowledgeArticleItem {
+  _id: string;
+  title: string;
+  body: string;
+  category: 'hostel' | 'canteen' | 'wifi' | 'contacts' | 'emergency' | 'reporting' | 'general';
+  tags: string[];
+  published: boolean;
+  updatedBy?: { _id: string; name: string; email: string };
+  createdAt: string;
+  updatedAt: string;
+}
+

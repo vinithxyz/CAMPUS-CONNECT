@@ -1,13 +1,13 @@
 import AuditLog from '../models/AuditLog.js';
 
-/** Logs failures instead of throwing, so an audit write problem never breaks the admin action. Monitor these logs. */
-export const audit = (req, action, targetType, targetId, meta = {}) =>
+/** ctx is req, or { user, ip }. via: 'assistant' marks actions that originated in chat. */
+export const audit = (ctx, action, targetType, targetId, meta = {}, via = 'ui') =>
   AuditLog.create({
-    actor: req.user._id,
-    actorRole: req.user.role,
+    actor: ctx.user._id,
+    actorRole: ctx.user.role,
     action,
     targetType,
     targetId: String(targetId),
-    meta,
-    ip: req.ip,
+    meta: { ...meta, via },
+    ip: ctx.ip,
   }).catch((e) => console.error('AUDIT WRITE FAILED', action, targetId, e));

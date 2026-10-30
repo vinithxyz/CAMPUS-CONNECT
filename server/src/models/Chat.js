@@ -4,6 +4,7 @@ const messageSchema = new mongoose.Schema(
   {
     role: { type: String, enum: ['user', 'assistant'], required: true },
     content: { type: String, required: true, maxlength: 4000 },
+    cards: [{ actionId: { type: mongoose.Schema.Types.ObjectId, ref: 'PendingAction' }, _id: false }],
     createdAt: { type: Date, default: Date.now },
   },
   { _id: false }
@@ -12,6 +13,7 @@ const messageSchema = new mongoose.Schema(
 const chatSchema = new mongoose.Schema(
   {
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+    assistant: { type: String, enum: ['student', 'admin'], required: true },
     messages: { type: [messageSchema], default: [] },
     updatedAt: { type: Date, default: Date.now },
   },

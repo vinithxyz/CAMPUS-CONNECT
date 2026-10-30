@@ -1,27 +1,34 @@
 import React from 'react';
 import { Sparkles } from 'lucide-react';
+import type { Role } from '../../types';
 
 interface SuggestedPromptsProps {
+  role?: Role;
   onPick: (prompt: string) => void;
   disabled?: boolean;
 }
 
-const DEFAULT_PROMPTS = [
-  'How do I report a campus issue?',
-  'Check my complaint status.',
-  'Show my pending complaints.',
-  'I want to report a new issue.',
-];
+export default function SuggestedPrompts({
+  role = 'student',
+  onPick,
+  disabled,
+}: SuggestedPromptsProps) {
+  let prompts: string[] = ['Report a problem', 'Check my complaint', 'Campus info'];
 
-export default function SuggestedPrompts({ onPick, disabled }: SuggestedPromptsProps) {
+  if (role === 'admin') {
+    prompts = ['Overdue and critical reports', 'Open reports by building', 'Recurring problems'];
+  } else if (role === 'staff') {
+    prompts = ['Show my assigned reports', 'Overdue reports', 'Campus info'];
+  }
+
   return (
     <div className="px-4 py-2 bg-slate-50/70 border-t border-slate-100">
       <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-500 mb-1.5">
         <Sparkles className="w-3 h-3 text-blue-500" />
-        <span>Suggested questions:</span>
+        <span>Suggested:</span>
       </div>
       <div className="flex flex-wrap gap-1.5">
-        {DEFAULT_PROMPTS.map((prompt) => (
+        {prompts.map((prompt) => (
           <button
             key={prompt}
             type="button"

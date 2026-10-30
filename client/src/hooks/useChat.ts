@@ -1,62 +1,102 @@
-import { useCallback, useState } from 'react';
-import { chatService } from '../services/chatService';
-import { getErrorMessage } from '../services/api';
-import type { ChatMessage } from '../types/chat';
-
-const WELCOME: ChatMessage = {
-  id: 'welcome',
-  role: 'assistant',
-  content: "Hi! I'm the CampusConnect assistant. I can answer questions about campus policies, check your complaint status, look for duplicate reports, or help you draft a new report.",
-};
+import { useState, useCallback, useRef, useEffect } from 'react';
+import { streamChat, chatService } from '../services/chatService';
+import { useChatLanguage } from './useChatLanguage';
+import type { ChatMessage, ActionCardData, Attachment } from '../types/chat';
 
 export function useChat() {
-  const [messages, setMessages] = useState<ChatMessage[]>([WELCOME]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [conversationId, setConversationId] = useState<string>();
-  const [sending, setSending] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [toolLabel, setToolLabel] = useState<string>();
+  const abort = useRef<AbortController>();
+  const { language } = useChatLanguage();
+
+  const patchLast = (fn: (m: ChatMessage) => ChatMessage) =>
+    setMessages((ms) => ms.map((m, i) => (i === ms.length - 1 ? fn(m) : m)));
 
   const send = useCallback(
-    async (text: string) => {
-      const trimmed = text.trim();
-      if (!trimmed || sending) return;
-
-      setMessages((m) => [...m, { id: crypto.randomUUID(), role: 'user', content: trimmed }]);
-      setSending(true);
-
+    async (text: string, attachments: Attachment[] = []) => {
+      const message = text.trim();
+      if (!message || busy) return;
+      setBusy(true);
+      setToolLabel(undefined);
+      const ac = (abort.current = new AbortController());
+      setMessages((ms) => [
+        ...ms.map((m) => ({ ...m, replies: undefined })), // old quick replies disappear
+        { id: crypto.randomUUID(), role: 'user', content: message, cards: [], attachments },
+        { id: crypto.randomUUID(), role: 'assistant', content: '', cards: [], streaming: true },
+      ]);
       try {
-        const res = await chatService.send(trimmed, conversationId);
-        setConversationId(res.conversationId);
-        setMessages((m) => [
-          ...m,
+        await streamChat(
           {
-            id: crypto.randomUUID(),
-            role: 'assistant',
-            content: res.reply,
-            action: res.action,
+            message,
+            conversationId,
+            attachmentIds: attachments.map((a) => a.id),
+            language,
           },
-        ]);
-      } catch (e) {
-        setMessages((m) => [
-          ...m,
           {
-            id: crypto.randomUUID(),
-            role: 'assistant',
-            content: getErrorMessage(e),
+            onDelta: (t) => patchLast((m) => ({ ...m, content: m.content + t })),
+            onTool: setToolLabel,
+            onCard: (c) => patchLast((m) => ({ ...m, cards: [...m.cards, c] })),
+            onReplies: (o) => patchLast((m) => ({ ...m, replies: o })),
+            onDone: setConversationId,
           },
-        ]);
+          ac.signal
+        );
+      } catch (e: any) {
+        if (!ac.signal.aborted) {
+          patchLast((m) => ({ ...m, content: m.content || e.message, error: true }));
+        }
       } finally {
-        setSending(false);
+        patchLast((m) => ({ ...m, streaming: false }));
+        setBusy(false);
+        setToolLabel(undefined);
       }
     },
-    [conversationId, sending]
+    [busy, conversationId, language]
   );
 
-  const reset = useCallback(() => {
-    if (conversationId) {
-      chatService.clear(conversationId).catch(() => {});
-    }
-    setConversationId(undefined);
-    setMessages([WELCOME]);
-  }, [conversationId]);
+  const stop = () => abort.current?.abort();
 
-  return { messages, sending, send, reset, conversationId };
+  const reset = () => {
+    abort.current?.abort();
+    if (conversationId) chatService.clear(conversationId).catch(() => {});
+    setConversationId(undefined);
+    setMessages([]);
+  };
+
+  const updateCard = (actionId: string, patch: Partial<ActionCardData>) =>
+    setMessages((ms) =>
+      ms.map((m) => ({
+        ...m,
+        cards: m.cards.map((c) => (c.actionId === actionId ? { ...c, ...patch } : c)),
+      }))
+    );
+
+  // Restore on mount / widget open
+  useEffect(() => {
+    let cancelled = false;
+    chatService
+      .current()
+      .then((data) => {
+        if (!cancelled && data) {
+          setConversationId(data.conversationId);
+          setMessages(
+            (data.messages || []).map((m: any) => ({
+              id: m.id || crypto.randomUUID(),
+              role: m.role,
+              content: m.content,
+              cards: m.cards || [],
+              replies: undefined,
+            }))
+          );
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  return { messages, busy, toolLabel, send, stop, reset, updateCard };
 }

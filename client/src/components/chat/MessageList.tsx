@@ -1,41 +1,65 @@
 import React, { useEffect, useRef } from 'react';
+import { Square, Loader2 } from 'lucide-react';
 import MessageBubble from './MessageBubble';
-import { Bot } from 'lucide-react';
-import type { ChatMessage, ChatAction } from '../../types/chat';
+import type { ChatMessage, ActionCardData } from '../../types/chat';
 
 interface MessageListProps {
   messages: ChatMessage[];
-  sending: boolean;
-  onAction?: (action: ChatAction) => void;
+  busy: boolean;
+  toolLabel?: string;
+  updateCard: (actionId: string, patch: Partial<ActionCardData>) => void;
+  onSelectReply: (reply: string) => void;
+  onStop: () => void;
 }
 
-export default function MessageList({ messages, sending, onAction }: MessageListProps) {
+export default function MessageList({
+  messages,
+  busy,
+  toolLabel,
+  updateCard,
+  onSelectReply,
+  onStop,
+}: MessageListProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, sending]);
+  }, [messages, busy, toolLabel]);
 
   return (
     <div
       aria-live="polite"
-      className="flex-1 overflow-y-auto p-4 space-y-3.5 bg-slate-50/40"
+      className="flex-1 overflow-y-auto p-4 space-y-3.5 bg-slate-50/50 relative"
     >
-      {messages.map((m) => (
-        <MessageBubble key={m.id} message={m} onAction={onAction} />
+      {messages.map((m, idx) => (
+        <MessageBubble
+          key={m.id}
+          message={m}
+          updateCard={updateCard}
+          onSelectReply={onSelectReply}
+          isLast={idx === messages.length - 1}
+        />
       ))}
 
-      {/* Typing indicator */}
-      {sending && (
-        <div className="flex items-start gap-2.5">
-          <div className="w-7 h-7 rounded-full bg-slate-800 text-white flex items-center justify-center shrink-0 shadow-sm">
-            <Bot className="w-3.5 h-3.5" />
-          </div>
-          <div className="bg-white border border-slate-200/80 rounded-2xl rounded-tl-sm px-3.5 py-3 shadow-sm flex items-center gap-1.5">
-            <span className="w-2 h-2 bg-blue-600 rounded-full animate-bounce [animation-delay:-0.3s]" />
-            <span className="w-2 h-2 bg-blue-600 rounded-full animate-bounce [animation-delay:-0.15s]" />
-            <span className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" />
-          </div>
+      {/* Tool running indicator */}
+      {toolLabel && (
+        <div className="flex items-center gap-2 text-xs text-slate-500 bg-white/90 border border-slate-200/80 rounded-full px-3 py-1.5 w-fit shadow-xs animate-pulse">
+          <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-600 shrink-0" />
+          <span>{toolLabel}</span>
+        </div>
+      )}
+
+      {/* Stop Streaming Button floating when busy */}
+      {busy && (
+        <div className="sticky bottom-2 flex justify-center z-10">
+          <button
+            type="button"
+            onClick={onStop}
+            className="flex items-center gap-1.5 px-3 py-1 bg-slate-900/90 hover:bg-slate-900 text-white text-xs font-medium rounded-full shadow-md backdrop-blur-xs transition active:scale-95"
+          >
+            <Square className="w-3 h-3 fill-current text-red-400" />
+            <span>Stop generating</span>
+          </button>
         </div>
       )}
 
