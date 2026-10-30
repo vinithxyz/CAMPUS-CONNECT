@@ -31,6 +31,6 @@ export function errorHandler(err, _req, res, _next) {
   const status = err.status ?? 500;
   if (status === 500) console.error(err);
   res.status(status).json({
-    error: { message: status === 500 ? 'Something went wrong' : err.message, details: err.details },
+    error: { message: err.message || 'Something went wrong', details: err.details },
   });
 }
