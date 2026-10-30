@@ -43,23 +43,23 @@ export async function seedData() {
 
   const [student, admin, staff] = await User.create([
     {
-      name: 'User 123',
-      rollNumber: 'CS2025001',
-      email: 'user123@example.edu',
+      name: 'Student User',
+      rollNumber: 'CS2026001',
+      email: 'student@campusconnect.edu',
       role: 'student',
-      passwordHash: await User.hashPassword('Password@123'),
+      passwordHash: await User.hashPassword('Student@123'),
     },
     {
       name: 'Campus Admin',
-      email: 'admin@example.edu',
+      email: 'admin@campusconnect.edu',
       role: 'admin',
-      passwordHash: await User.hashPassword('Admin@12345'),
+      passwordHash: await User.hashPassword('Admin@123'),
     },
     {
       name: 'Maintenance Staff',
-      email: 'staff@example.edu',
+      email: 'staff@campusconnect.edu',
       role: 'staff',
-      passwordHash: await User.hashPassword('Staff@12345'),
+      passwordHash: await User.hashPassword('Staff@123'),
     },
   ]);
 

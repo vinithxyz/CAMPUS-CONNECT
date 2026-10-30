@@ -82,9 +82,9 @@ npm run dev       # Starts Vite dev server on http://localhost:5173
 
 | Role | Email / Identifier | Password | Access |
 | :--- | :--- | :--- | :--- |
-| **Student** | `user123@example.edu` or `CS2025001` | `Password@123` | Report issues, view own complaints, see map & notifications |
-| **Maintenance Staff** | `staff@example.edu` | `Staff@12345` | View assigned reports, update status with notes, internal logs |
-| **Admin** | `admin@example.edu` | `Admin@12345` | Full administrative control: reports, assign staff, users, buildings, audit logs |
+| **Student** | `student@campusconnect.edu` or `CS2026001` | `Student@123` | Report issues, view own complaints, see map & notifications |
+| **Maintenance Staff** | `staff@campusconnect.edu` | `Staff@123` | View assigned reports, update status with notes, internal logs |
+| **Admin** | `admin@campusconnect.edu` | `Admin@123` | Full administrative control: reports, assign staff, users, buildings, audit logs |
 
 ---
 

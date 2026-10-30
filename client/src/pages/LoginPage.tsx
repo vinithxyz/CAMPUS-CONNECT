@@ -144,50 +144,11 @@ export default function LoginPage() {
         </button>
       </form>
 
-      {/* Divider */}
-      <div className="relative my-4">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-slate-200" />
-        </div>
-        <div className="relative flex justify-center text-[11px] uppercase">
-          <span className="bg-white px-3 text-slate-400 font-medium">OR</span>
-        </div>
-      </div>
-
-      {/* Google Login Button */}
-      <button
-        type="button"
-        onClick={() => {
-          toast.info('Google OAuth requires configuring VITE_GOOGLE_CLIENT_ID in .env. Use demo credentials to login.');
-        }}
-        className="w-full py-2.5 px-4 border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-semibold transition flex items-center justify-center gap-2.5 shadow-2xs"
-      >
-        <svg className="w-4 h-4" viewBox="0 0 24 24">
-          <path
-            fill="#EA4335"
-            d="M12 5c1.57 0 2.98.57 4.09 1.51l3.07-3.07C17.29 1.7 14.82 1 12 1 7.42 1 3.51 3.6 1.63 7.37l3.68 2.85C6.19 7.33 8.87 5 12 5z"
-          />
-          <path
-            fill="#4285F4"
-            d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58l3.71 2.88c2.16-2 3.71-4.94 3.71-8.7z"
-          />
-          <path
-            fill="#FBBC05"
-            d="M5.31 14.78c-.24-.71-.38-1.47-.38-2.26s.14-1.55.38-2.26L1.63 7.41C.59 9.47 0 11.66 0 14.21s.59 4.74 1.63 6.8l3.68-2.85c-.01-.01 0-.01 0-.01z"
-          />
-          <path
-            fill="#34A853"
-            d="M12 23.42c3.24 0 5.95-1.07 7.94-2.91l-3.71-2.88c-1.08.73-2.46 1.16-4.23 1.16-3.13 0-5.81-2.33-6.69-5.22L1.63 16.42C3.51 20.2 7.42 22.8 12 22.8z"
-          />
-        </svg>
-        <span>Login with Google</span>
-      </button>
-
       {/* Demo helper */}
-      <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-[11px] text-slate-500 text-center space-y-1">
-        <div>Student: <span className="font-semibold text-slate-700">user123@example.edu</span> / <span className="font-semibold text-slate-700">Password@123</span></div>
-        <div>Admin: <span className="font-semibold text-slate-700">admin@example.edu</span> / <span className="font-semibold text-slate-700">Admin@12345</span></div>
-        <div>Staff: <span className="font-semibold text-slate-700">staff@example.edu</span> / <span className="font-semibold text-slate-700">Staff@12345</span></div>
+      <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 text-[11px] text-slate-500 text-center space-y-1.5 shadow-2xs">
+        <div>Student: <span className="font-semibold text-slate-700">student@campusconnect.edu</span> / <span className="font-semibold text-slate-700">Student@123</span></div>
+        <div>Admin: <span className="font-semibold text-slate-700">admin@campusconnect.edu</span> / <span className="font-semibold text-slate-700">Admin@123</span></div>
+        <div>Staff: <span className="font-semibold text-slate-700">staff@campusconnect.edu</span> / <span className="font-semibold text-slate-700">Staff@123</span></div>
       </div>
 
       {/* Sign Up Link */}
