@@ -26,13 +26,21 @@ export default function DashboardPage() {
     async function loadData() {
       try {
         setLoading(true);
-        const [statsRes, reportsRes] = await Promise.all([
+        const [statsRes, reportsRes] = await Promise.allSettled([
           reportService.stats(),
           reportService.list({ limit: 4, sort: '-createdAt' }),
         ]);
         if (active) {
-          setStats(statsRes);
-          setRecentReports(reportsRes.data);
+          if (statsRes.status === 'fulfilled') {
+            setStats(statsRes.value);
+          } else {
+            console.error('Failed to load stats:', statsRes.reason);
+          }
+          if (reportsRes.status === 'fulfilled') {
+            setRecentReports(reportsRes.value.data);
+          } else {
+            console.error('Failed to load recent reports:', reportsRes.reason);
+          }
         }
       } catch (err) {
         console.error('Failed to load dashboard data:', err);

@@ -75,7 +75,7 @@ export const myStats = asyncHandler(async (req, res) => {
                 {
                   $and: [
                     { $in: ['$priority', ['high', 'critical']] },
-                    { $nin: ['$status', ['resolved', 'cancelled']] },
+                    { $not: [{ $in: ['$status', ['resolved', 'cancelled']] }] },
                   ],
                 },
                 1,
